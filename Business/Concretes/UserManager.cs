@@ -1,0 +1,102 @@
+﻿using AutoMapper;
+using Business.Abstracts;
+using Business.Dtos.Requests.User;
+using Business.Dtos.Responses.User;
+using Business.Rules;
+using Core.Aspects.Autofac.SecuredOperation;
+using Core.DataAccess.Paging;
+using Core.Entities;
+using DataAccess.Abstracts;
+using Entities.Concretes;
+
+namespace Business.Concretes;
+
+public class UserManager : IUserService
+{
+    IMapper _mapper;
+    IUserDal _userDal;
+    UserBusinessRules _userBusinessRules;
+
+	public UserManager(IMapper mapper, IUserDal userDal, UserBusinessRules userBusinessRules)
+	{
+		_mapper = mapper;
+		_userDal = userDal;
+		_userBusinessRules = userBusinessRules;
+	}
+
+    public async Task<CreatedUserResponse> AddAsync(CreateUserRequest createUserRequest)
+    {        
+        User user = _mapper.Map<User>(createUserRequest);
+        var createdUser = await _userDal.AddAsync(user);
+        CreatedUserResponse result = _mapper.Map<CreatedUserResponse>(createdUser);
+        return result;
+    }
+
+    [SecuredOperation("admin")]
+    public async Task<DeletedUserResponse> DeleteByIdAsync(Guid id)
+    {
+        User user;
+        user = await _userBusinessRules.CheckIfExistsById(id);		
+		var deletedUser = await _userDal.DeleteAsync(user);
+        DeletedUserResponse deletedUserResponse = _mapper.Map<DeletedUserResponse>(deletedUser);
+        return deletedUserResponse;
+    }
+
+    [SecuredOperation("admin")]
+    public async Task<DeletedUserResponse> DeleteByMailAsync(string email)
+	{
+		User user;
+        user = await _userBusinessRules.CheckIfExistsByMail(email);
+		var deletedUser = await _userDal.DeleteAsync(user);
+		DeletedUserResponse deletedUserResponse = _mapper.Map<DeletedUserResponse>(deletedUser);
+		return deletedUserResponse;
+	}
+
+	public async Task<GetUserResponse> GetByIdAsync(Guid id)
+    {
+        User user = await _userDal.GetAsync(u => u.Id == id);
+		
+		return _mapper.Map<GetUserResponse>(user);
+    }
+
+    public async Task<User> GetByMailAsync(string mail,bool withDeleted)
+    {
+        var result = await _userDal.GetAsync(u => u.Email == mail,withDeleted: withDeleted);        
+        return result;
+    }
+
+    [SecuredOperation("admin")]
+    public async Task<IPaginate<GetListUserResponse>> GetListAsync(PageRequest pageRequest)
+    {
+        var result = await _userDal.GetListAsync(index: pageRequest.PageIndex, size: pageRequest.PageSize);
+        return _mapper.Map<Paginate<GetListUserResponse>>(result);
+    }
+        
+    public async Task<UpdatedUserResponse> UpdateAsync(UpdateUserRequest updateUserRequest)
+    {
+        User user = await _userBusinessRules.CheckIfExistsById(updateUserRequest.Id);
+        _mapper.Map(updateUserRequest, user);
+        var updatedUser = await _userDal.UpdateAsync(user);
+        UpdatedUserResponse updatedUserResponse = _mapper.Map<UpdatedUserResponse>(updatedUser);
+        return updatedUserResponse;
+    }
+
+    public async Task<bool> ActivateUserAsync(string email)
+	{
+		User user = await _userDal.GetAsync(u => u.Email == email,withDeleted:true);
+		user.DeletedDate = null;
+		await _userDal.UpdateAsync(user);     
+		return true;
+	}
+
+	public List<IOperationClaim> GetClaims(IUser user)
+    {
+        return _userDal.GetClaims(user);
+    }
+
+	public async Task<GetByMailUserResponse> GetByMailUserAsync(string mail)
+	{
+		User result = await _userDal.GetAsync(u => u.Email == mail);
+		return _mapper.Map<GetByMailUserResponse>(result);
+	}
+}
