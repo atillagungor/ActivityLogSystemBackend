@@ -11,11 +11,8 @@ public static class DataAccessServiceRegistration
     public static IServiceCollection AddDataAccessServices(this IServiceCollection services, IConfiguration configuration)
     {
         
-#if _WINDOWS
-        services.AddDbContext<TobetoPlatformContext>(options => options.UseSqlServer(configuration.GetConnectionString("TobetoPlatform")));
-#else
-        services.AddDbContext<TobetoPlatformContext>(options => options.UseSqlServer(configuration.GetConnectionString("TobetoPlatform2")));
-#endif
+
+        services.AddDbContext<TobetoLogContext>(options => options.UseSqlServer(configuration.GetConnectionString("TobetoLogContext"))); 
         
         services.AddScoped<IUserDal, EfUserDal>();
         services.AddScoped<IOperationClaimDal, EfOperationClaimDal>();

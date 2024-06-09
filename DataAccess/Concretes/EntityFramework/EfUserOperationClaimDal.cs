@@ -4,9 +4,9 @@ using DataAccess.Contexts;
 using Entities.Concretes.CrossTables;
 
 namespace DataAccess.Concretes.EntityFramework;
-public class EfUserOperationClaimDal : EfRepositoryBase<UserOperationClaim, Guid, TobetoPlatformContext>, IUserOperationClaimDal
+public class EfUserOperationClaimDal : EfRepositoryBase<UserOperationClaim, Guid, TobetoLogContext>, IUserOperationClaimDal
 {
-    public EfUserOperationClaimDal(TobetoPlatformContext context) : base(context)
+    public EfUserOperationClaimDal(TobetoLogContext context) : base(context)
     {
     }
 }

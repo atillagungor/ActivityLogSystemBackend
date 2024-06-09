@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace DataAccess.Contexts;
 
-public class TobetoPlatformContext:DbContext
+public class TobetoLogContext:DbContext
 {
     protected IConfiguration Configuration { get; set; }
 
@@ -15,7 +15,7 @@ public class TobetoPlatformContext:DbContext
     public DbSet<OperationClaim> OperationClaims { get; set; }
     public DbSet<UserOperationClaim> UserOperationClaims { get; set; }
 
-    public TobetoPlatformContext(DbContextOptions options, IConfiguration configuration):base(options)
+    public TobetoLogContext(DbContextOptions options, IConfiguration configuration):base(options)
     {
         Configuration = configuration;
         Database.EnsureCreated();

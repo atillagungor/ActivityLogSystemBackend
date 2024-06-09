@@ -4,9 +4,9 @@ using DataAccess.Contexts;
 using Entities.Concretes;
 
 namespace DataAccess.Concretes.EntityFramework;
-public class EfOperationClaimDal : EfRepositoryBase<OperationClaim, Guid, TobetoPlatformContext>, IOperationClaimDal
+public class EfOperationClaimDal : EfRepositoryBase<OperationClaim, Guid, TobetoLogContext>, IOperationClaimDal
 {
-    public EfOperationClaimDal(TobetoPlatformContext context) : base(context)
+    public EfOperationClaimDal(TobetoLogContext context) : base(context)
     {
     }
 }

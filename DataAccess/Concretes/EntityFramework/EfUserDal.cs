@@ -5,10 +5,10 @@ using DataAccess.Contexts;
 using Entities.Concretes;
 
 namespace DataAccess.Concretes.EntityFramework;
-public class EfUserDal : EfRepositoryBase<User, Guid, TobetoPlatformContext>, IUserDal
+public class EfUserDal : EfRepositoryBase<User, Guid, TobetoLogContext>, IUserDal
 {
-    TobetoPlatformContext _context;
-    public EfUserDal(TobetoPlatformContext context) : base(context)
+    TobetoLogContext _context;
+    public EfUserDal(TobetoLogContext context) : base(context)
     {
         _context = context;
     }
