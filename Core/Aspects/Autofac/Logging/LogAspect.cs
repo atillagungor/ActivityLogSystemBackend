@@ -1,47 +1,41 @@
 ﻿using Castle.DynamicProxy;
 using Core.CrossCuttingConcerns.Logging;
-using Core.CrossCuttingConcerns.Logging.Log4Net;
 using Core.Utilities.Interceptors;
-using Core.Utilities.Messages;
+using Serilog;
 
-namespace Core.Aspects.Autofac.Logging;
-public class LogAspect : MethodInterception
+namespace Core.Aspects.Autofac.Logging
 {
-	private LoggerServiceBase _loggerServiceBase;
+    public class LogAspect : MethodInterception
+    {
+        public LogAspect(CrossCuttingConcerns.Logging.Serilog.Loggers.LoggerServiceBase loggerServiceBase)
+        {
+        }
 
-	public LogAspect(Type loggerService)
-	{
-		if (loggerService.BaseType != typeof(LoggerServiceBase))
-		{
-			throw new System.Exception(AspectMessages.WrongLoggerType);
-		}
+        protected override void OnBefore(IInvocation invocation)
+        {
+            var logDetail = GetLogDetail(invocation);
+            Log.Information(logDetail.ToString());
+        }
 
-		_loggerServiceBase = (LoggerServiceBase)Activator.CreateInstance(loggerService);
-	}
+        private LogDetail GetLogDetail(IInvocation invocation)
+        {
+            var logParameters = new List<LogParameter>();
+            for (int i = 0; i < invocation.Arguments.Length; i++)
+            {
+                logParameters.Add(new LogParameter
+                {
+                    Name = invocation.GetConcreteMethod().GetParameters()[i].Name,
+                    Value = invocation.Arguments[i],
+                    Type = invocation.Arguments[i].GetType().Name
+                });
+            }
 
-	protected override void OnBefore(IInvocation invocation)
-	{
-		_loggerServiceBase.Info(GetLogDetail(invocation));
-	}
-
-	private LogDetail GetLogDetail(IInvocation invocation)
-	{
-		var logParameters = new List<LogParameter>();
-		for (int i = 0; i < invocation.Arguments.Length; i++)
-		{
-			logParameters.Add(new LogParameter
-			{
-				Name = invocation.GetConcreteMethod().GetParameters()[i].Name,
-				Value = invocation.Arguments[i],
-				Type = invocation.Arguments[i].GetType().Name
-			});
-		}
-
-		var logDetail = new LogDetail
-		{
-			MethodName = invocation.Method.Name,
-			LogParameters = logParameters
-		};
-		return logDetail;
-	}
+            var logDetail = new LogDetail
+            {
+                MethodName = invocation.Method.Name,
+                LogParameters = logParameters
+            };
+            return logDetail;
+        }
+    }
 }
