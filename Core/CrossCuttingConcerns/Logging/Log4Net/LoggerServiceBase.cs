@@ -3,7 +3,7 @@ using Serilog.Events;
 
 namespace Core.CrossCuttingConcerns.Logging.Serilog.Loggers
 {
-    public class LoggerServiceBase
+    public abstract class LoggerServiceBase
     {
         private readonly ILogger _logger;
 

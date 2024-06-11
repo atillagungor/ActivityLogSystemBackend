@@ -25,10 +25,14 @@ namespace Core.Utilities.Interceptors
             // Loglama işlemi için Serilog'u kullanma
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
-                .WriteTo.File(@"C:\Logs\log-.txt")
+                .WriteTo.MSSqlServer(connectionString: "Server=ATILLA; Database=TobetoDb; Trusted_Connection=True; Encrypt=True; TrustServerCertificate=True;",sinkOptions:new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions()
+                {
+                    AutoCreateSqlTable = true,
+                    TableName = "logs",
+                })
                 .CreateLogger();
 
-            var logInterceptor = new LogAspect(new LoggerServiceBase(Log.Logger)); // LogInterceptor yerine LogAspect kullanıyoruz
+            var logInterceptor = new LogAspect(new FileLogger()); // LogInterceptor yerine LogAspect kullanıyoruz
             classAttributes.Add(logInterceptor); // LogInterceptor yerine logInterceptor değişkenini ekliyoruz
 
             return classAttributes.OrderBy(x => x.Priority).ToArray();
